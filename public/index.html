@@ -75,7 +75,11 @@ Declaro que sou maior de 18 anos
 <div id="mensagem"></div>
 
 </div>
+<h2>Modelos Cadastradas</h2>
+<div id="lista"></div>
 
+<script>
+<script>
 <script>
 const form = document.getElementById("form");
 const msg = document.getElementById("mensagem");
@@ -92,15 +96,16 @@ form.onsubmit = async (e)=>{
 
   const result = await res.json();
 
-  if(result.ok){carregarModelos();
-
+  if(result.ok){
     msg.innerHTML = "<div class='card'>Cadastro realizado com sucesso!</div>";
     form.reset();
+    carregarModelos(); // <-- IMPORTANTE
   }else{
     msg.innerHTML = "<div class='card'>"+result.error+"</div>";
   }
 }
-</script>async function carregarModelos(){
+
+async function carregarModelos(){
   const res = await fetch("/api/models");
   const modelos = await res.json();
 
@@ -122,7 +127,5 @@ form.onsubmit = async (e)=>{
 }
 
 carregarModelos();
+</script>
 
-
-</body>
-</html>
