@@ -1,14 +1,12 @@
-app.use(cors());
-app.use(express.json());
-app.use(express.static("public"));
-
 require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
@@ -18,7 +16,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Criar tabela completa
+// Criar tabela
 (async () => {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS models (
@@ -59,12 +57,8 @@ app.post("/api/register", async (req, res) => {
     res.status(400).json({ error: "Email já cadastrado" });
   }
 });
-app.get("/api/models", async (req, res) => {
-  const result = await pool.query(
-    "SELECT id, nome, cidade, estado, descricao, whatsapp FROM models ORDER BY id DESC"
-  );
-  res.json(result.rows);
-});
+
+// LISTAR MODELOS
 app.get("/api/models", async (req, res) => {
   try {
     const result = await pool.query(
