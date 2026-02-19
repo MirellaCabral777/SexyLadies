@@ -18,20 +18,27 @@ const pool = new Pool({
 
 // Criar tabela
 (async () => {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS models (
-      id SERIAL PRIMARY KEY,
-      nome TEXT,
-      email TEXT UNIQUE,
-      senha TEXT,
-      cidade TEXT,
-      estado TEXT,
-      descricao TEXT,
-      whatsapp TEXT,
-      maior18 BOOLEAN,
-      created_at TIMESTAMP DEFAULT NOW()
-    );
-  `);
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS models (
+        id SERIAL PRIMARY KEY,
+        nome TEXT,
+        email TEXT UNIQUE,
+        senha TEXT,
+        cidade TEXT,
+        estado TEXT,
+        descricao TEXT,
+        whatsapp TEXT,
+        maior18 BOOLEAN,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log("Tabela models verificada/criada");
+  } catch (err) {
+    console.error("Erro criando tabela:", err);
+  }
+})();
+
 })();
 
 // Cadastro
