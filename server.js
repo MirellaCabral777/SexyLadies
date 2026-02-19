@@ -16,9 +16,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-/* =========================
-   TESTE BANCO
-========================= */
+// TESTE
 app.get("/api/teste", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
@@ -28,9 +26,7 @@ app.get("/api/teste", async (req, res) => {
   }
 });
 
-/* =========================
-   CADASTRO MODELO
-========================= */
+// CADASTRO
 app.post("/api/register", async (req, res) => {
   try {
     const { nome, email, senha, cidade, estado, descricao, whatsapp, maior18 } = req.body;
@@ -52,30 +48,23 @@ app.post("/api/register", async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(400).json({ error: "Erro ao cadastrar (email pode já existir)" });
+    res.status(400).json({ error: err.message });
   }
 });
 
-/* =========================
-   LISTAR MODELOS
-========================= */
+// LISTAR MODELOS
 app.get("/api/models", async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT id, nome, cidade, estado, descricao, whatsapp FROM models ORDER BY id DESC"
     );
-
     res.json(result.rows);
-
   } catch (err) {
-    console.error("Erro ao buscar modelos:", err);
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
 
-/* =========================
-   SERVIDOR
-========================= */
 app.listen(process.env.PORT || 3000, () => {
   console.log("Servidor rodando...");
 });
