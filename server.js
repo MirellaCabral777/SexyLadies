@@ -16,43 +16,20 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-/* ===== RESETAR E CRIAR TABELA ===== */
+/* Atualiza estrutura da tabela */
 (async () => {
   try {
-    await pool.query(`DROP TABLE IF EXISTS models;`);
-
     await pool.query(`
-      CREATE TABLE models (
-        id SERIAL PRIMARY KEY,
-        nome TEXT,
-        email TEXT UNIQUE,
-        senha TEXT,
-        cidade TEXT,
-        estado TEXT,
-        descricao TEXT,
-        whatsapp TEXT,
-        maior18 BOOLEAN,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
+      ALTER TABLE models
+      ADD COLUMN IF NOT EXISTS views INTEGER DEFAULT 0;
     `);
-
-    console.log("Tabela recriada com sucesso!");
+    console.log("Coluna views pronta");
   } catch (err) {
-    console.error("Erro ao recriar tabela:", err);
+    console.error(err);
   }
 })();
 
-/* ===== TESTE ===== */
-app.get("/api/teste", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT NOW()");
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/* ===== CADASTRO ===== */
+/* CADASTRO */
 app.post("/api/register", async (req, res) => {
   try {
     const { nome, email, senha, cidade, estado, descricao, whatsapp, maior18 } = req.body;
@@ -77,13 +54,32 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-/* ===== LISTAR ===== */
+/* LISTAR */
 app.get("/api/models", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, nome, cidade, estado, descricao, whatsapp FROM models ORDER BY id DESC"
+      "SELECT id, nome, cidade, estado, descricao, whatsapp, views FROM models ORDER BY id DESC"
     );
     res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* BUSCAR PERFIL + SOMAR VISUALIZAÇÃO */
+app.get("/api/model/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    await pool.query("UPDATE models SET views = views + 1 WHERE id = $1", [id]);
+
+    const result = await pool.query(
+      "SELECT id, nome, cidade, estado, descricao, whatsapp, views FROM models WHERE id = $1",
+      [id]
+    );
+
+    res.json(result.rows[0]);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
