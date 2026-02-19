@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 app.use(cors());
@@ -12,30 +13,47 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Testar conexão banco
-app.get("/api/teste", async (req, res) => {
+// Criar tabela completa
+(async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS models (
+      id SERIAL PRIMARY KEY,
+      nome TEXT,
+      email TEXT UNIQUE,
+      senha TEXT,
+      cidade TEXT,
+      estado TEXT,
+      descricao TEXT,
+      whatsapp TEXT,
+      maior18 BOOLEAN,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `);
+})();
+
+// Cadastro
+app.post("/api/register", async (req, res) => {
+  const { nome, email, senha, cidade, estado, descricao, whatsapp, maior18 } = req.body;
+
+  if (!maior18) {
+    return res.status(400).json({ error: "Obrigatório ser maior de 18 anos" });
+  }
+
+  const hash = await bcrypt.hash(senha, 10);
+
   try {
-    const result = await pool.query("SELECT NOW()");
-    res.json({ ok: true, hora: result.rows[0] });
+    await pool.query(
+      `INSERT INTO models(nome,email,senha,cidade,estado,descricao,whatsapp,maior18)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [nome, email, hash, cidade, estado, descricao, whatsapp, maior18]
+    );
+
+    res.json({ ok: true });
+
   } catch (err) {
-    res.status(500).json({ error: "Erro banco", detalhe: err.message });
+    res.status(400).json({ error: "Email já cadastrado" });
   }
 });
-
-// Criar tabela models
-(async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS models (
-        id SERIAL PRIMARY KEY,
-        nome TEXT
-      );
-    `);
-    console.log("Tabela criada/verificada");
-  } catch (err) {
-    console.log("Erro ao criar tabela:", err.message);
-  }
-})();
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Servidor rodando...");
