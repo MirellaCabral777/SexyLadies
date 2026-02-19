@@ -61,6 +61,8 @@ label{
 <input name="cidade" placeholder="Cidade" required>
 <textarea name="descricao" placeholder="Descrição"></textarea>
 <input name="whatsapp" placeholder="WhatsApp (somente números)" required>
+<h2>Modelos Cadastradas</h2>
+<div id="lista"></div>
 
 <label>
 <input type="checkbox" name="maior18" required>
@@ -90,14 +92,37 @@ form.onsubmit = async (e)=>{
 
   const result = await res.json();
 
-  if(result.ok){
+  if(result.ok){carregarModelos();
+
     msg.innerHTML = "<div class='card'>Cadastro realizado com sucesso!</div>";
     form.reset();
   }else{
     msg.innerHTML = "<div class='card'>"+result.error+"</div>";
   }
 }
-</script>
+</script>async function carregarModelos(){
+  const res = await fetch("/api/models");
+  const modelos = await res.json();
+
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  modelos.forEach(m => {
+    lista.innerHTML += `
+      <div class="card">
+        <h3>${m.nome}</h3>
+        <p>${m.cidade} - ${m.estado}</p>
+        <p>${m.descricao || ""}</p>
+        <a href="https://wa.me/${m.whatsapp}" target="_blank">
+          <button>WhatsApp</button>
+        </a>
+      </div>
+    `;
+  });
+}
+
+carregarModelos();
+
 
 </body>
 </html>

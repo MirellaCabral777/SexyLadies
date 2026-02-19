@@ -59,6 +59,12 @@ app.post("/api/register", async (req, res) => {
     res.status(400).json({ error: "Email já cadastrado" });
   }
 });
+app.get("/api/models", async (req, res) => {
+  const result = await pool.query(
+    "SELECT id, nome, cidade, estado, descricao, whatsapp FROM models ORDER BY id DESC"
+  );
+  res.json(result.rows);
+});
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Servidor rodando...");
