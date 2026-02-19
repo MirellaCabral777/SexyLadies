@@ -80,7 +80,16 @@ async function carregarModelos(){
   const lista = document.getElementById("lista");
   lista.innerHTML = "";
 
-  modelos.forEach(m => {
+  <div class="card">
+  <h3>${m.nome}</h3>
+  <p>${m.cidade} - ${m.estado}</p>
+  <p>${m.descricao || ""}</p>
+
+  <a href="/perfil.html?id=${m.id}">
+    <button>Ver Perfil</button>
+  </a>
+</div>
+
     lista.innerHTML += `
       <div class="card">
         <h3>${m.nome}</h3>
