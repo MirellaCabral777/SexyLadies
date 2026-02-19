@@ -20,24 +20,22 @@ const pool = new Pool({
 (async () => {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS models (
-        id SERIAL PRIMARY KEY,
-        nome TEXT,
-        email TEXT UNIQUE,
-        senha TEXT,
-        cidade TEXT,
-        estado TEXT,
-        descricao TEXT,
-        whatsapp TEXT,
-        maior18 BOOLEAN,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
+      ALTER TABLE models
+      ADD COLUMN IF NOT EXISTS email TEXT,
+      ADD COLUMN IF NOT EXISTS senha TEXT,
+      ADD COLUMN IF NOT EXISTS cidade TEXT,
+      ADD COLUMN IF NOT EXISTS estado TEXT,
+      ADD COLUMN IF NOT EXISTS descricao TEXT,
+      ADD COLUMN IF NOT EXISTS whatsapp TEXT,
+      ADD COLUMN IF NOT EXISTS maior18 BOOLEAN,
+      ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
     `);
-    console.log("Tabela models verificada/criada");
+    console.log("Tabela models atualizada");
   } catch (err) {
-    console.error("Erro criando tabela:", err);
+    console.error("Erro atualizando tabela:", err);
   }
 })();
+
 
 })();
 
