@@ -5,70 +5,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sexy Ladies</title>
 <style>
-body{margin:0;font-family:Arial;background:#0f0f14;color:#fff}
-header{padding:20px;text-align:center;font-size:26px;font-weight:bold;background:#111}
-.container{max-width:1200px;margin:auto;padding:20px}
-form{background:#1b1b25;padding:20px;border-radius:16px;margin-bottom:30px}
+body{background:#0f0f14;color:#fff;font-family:Arial;margin:0}
+.container{max-width:500px;margin:auto;padding:20px}
 input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none}
-button{background:#ff0066;color:#fff;padding:10px;border:none;border-radius:8px;cursor:pointer;width:100%}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
-.card{background:#1b1b25;border-radius:16px;padding:15px}
-.card img{width:100%;border-radius:12px}
+button{background:#ff0066;color:#fff;padding:10px;border:none;border-radius:8px;width:100%;cursor:pointer}
+h2{text-align:center}
 </style>
 </head>
 <body>
 
-<header>Sexy Ladies – Plataforma de Perfis</header>
-
 <div class="container">
-
-<h2>Criar Perfil</h2>
+<h2>Cadastro Modelo</h2>
 <form id="form">
 <input name="nome" placeholder="Nome" required>
+<input name="email" placeholder="Email" required>
+<input type="password" name="senha" placeholder="Senha" required>
 <input name="estado" placeholder="Estado" required>
 <input name="cidade" placeholder="Cidade" required>
-<textarea name="descricao" placeholder="Descrição" required></textarea>
+<textarea name="descricao" placeholder="Descrição"></textarea>
 <input name="whatsapp" placeholder="WhatsApp" required>
-<input type="file" name="imagem" required>
-<button type="submit">Publicar Perfil</button>
-</form>
 
-<h2>Perfis Publicados</h2>
-<div class="grid" id="lista"></div>
+<label>
+<input type="checkbox" name="maior18" required>
+Declaro ser maior de 18 anos
+</label>
+
+<button type="submit">Cadastrar</button>
+</form>
 
 </div>
 
 <script>
-const form=document.getElementById('form');
+const form = document.getElementById("form");
 
-form.onsubmit=async(e)=>{
+form.onsubmit = async (e)=>{
  e.preventDefault();
- const data=new FormData(form);
- await fetch('/api/perfis',{method:'POST',body:data});
- alert('Perfil publicado!');
- form.reset();
- carregar();
-}
+ const data = Object.fromEntries(new FormData(form));
 
-async function carregar(){
- const res=await fetch('/api/perfis');
- const perfis=await res.json();
- lista.innerHTML='';
- perfis.forEach(p=>{
-  lista.innerHTML+=`
-   <div class="card">
-    <img src="${p.imagem}" />
-    <h3>${p.nome}</h3>
-    <p>${p.cidade} - ${p.estado}</p>
-    <p>${p.descricao}</p>
-    <a href="https://wa.me/${p.whatsapp}" target="_blank">
-      <button>WhatsApp</button>
-    </a>
-   </div>`;
+ const res = await fetch("/api/register",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify(data)
  });
-}
 
-carregar();
+ const result = await res.json();
+ alert(result.ok ? "Cadastro realizado!" : result.error);
+}
 </script>
 
 </body>
