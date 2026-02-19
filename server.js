@@ -16,17 +16,43 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// TESTE
+/* ===== RESETAR E CRIAR TABELA ===== */
+(async () => {
+  try {
+    await pool.query(`DROP TABLE IF EXISTS models;`);
+
+    await pool.query(`
+      CREATE TABLE models (
+        id SERIAL PRIMARY KEY,
+        nome TEXT,
+        email TEXT UNIQUE,
+        senha TEXT,
+        cidade TEXT,
+        estado TEXT,
+        descricao TEXT,
+        whatsapp TEXT,
+        maior18 BOOLEAN,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    console.log("Tabela recriada com sucesso!");
+  } catch (err) {
+    console.error("Erro ao recriar tabela:", err);
+  }
+})();
+
+/* ===== TESTE ===== */
 app.get("/api/teste", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
-    res.json({ ok: true, hora: result.rows[0] });
+    res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// CADASTRO
+/* ===== CADASTRO ===== */
 app.post("/api/register", async (req, res) => {
   try {
     const { nome, email, senha, cidade, estado, descricao, whatsapp, maior18 } = req.body;
@@ -47,12 +73,11 @@ app.post("/api/register", async (req, res) => {
     res.json({ ok: true });
 
   } catch (err) {
-    console.error(err);
     res.status(400).json({ error: err.message });
   }
 });
 
-// LISTAR MODELOS
+/* ===== LISTAR ===== */
 app.get("/api/models", async (req, res) => {
   try {
     const result = await pool.query(
@@ -60,7 +85,6 @@ app.get("/api/models", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
