@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelos - Sexy Ladies</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f0f14;
+  color:#fff;
+  display:flex;
+}
+
+.sidebar{
+  width:220px;
+  background:#16161f;
+  height:100vh;
+  padding:20px;
+  box-sizing:border-box;
+}
+
+.sidebar h2{
+  color:#ff0066;
+}
+
+.sidebar a{
+  display:block;
+  color:#fff;
+  text-decoration:none;
+  margin:15px 0;
+}
+
+.sidebar a:hover{
+  color:#ff0066;
+}
+
+.content{
+  flex:1;
+  padding:40px;
+}
+
+.card{
+  background:#1f1f2b;
+  padding:15px;
+  border-radius:10px;
+  margin-top:15px;
+}
+button{
+  background:#ff0066;
+  color:#fff;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Sexy Ladies</h2>
+  <a href="/">Cadastrar Modelo</a>
+  <a href="/modelos.html">Modelos Cadastradas</a>
+</div>
+
+<div class="content">
+<h1>Modelos Cadastradas</h1>
+<div id="lista"></div>
+</div>
+
+<script>
+async function carregarModelos(){
+  const res = await fetch("/api/models");
+  const modelos = await res.json();
+
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  modelos.forEach(m => {
+    lista.innerHTML += `
+      <div class="card">
+        <h3>${m.nome}</h3>
+        <p>${m.cidade} - ${m.estado}</p>
+        <p>${m.descricao || ""}</p>
+        <a href="https://wa.me/${m.whatsapp}" target="_blank">
+          <button>WhatsApp</button>
+        </a>
+      </div>
+    `;
+  });
+}
+
+carregarModelos();
+</script>
+
+</body>
+</html>

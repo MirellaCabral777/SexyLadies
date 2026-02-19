@@ -7,20 +7,41 @@
 
 <style>
 body{
+  margin:0;
+  font-family:Arial;
   background:#0f0f14;
   color:#fff;
-  font-family:Arial;
-  margin:0;
+  display:flex;
 }
-.container{
-  max-width:600px;
-  margin:auto;
-  padding:30px;
+
+.sidebar{
+  width:220px;
+  background:#16161f;
+  height:100vh;
+  padding:20px;
+  box-sizing:border-box;
 }
-h1{
-  text-align:center;
+
+.sidebar h2{
   color:#ff0066;
 }
+
+.sidebar a{
+  display:block;
+  color:#fff;
+  text-decoration:none;
+  margin:15px 0;
+}
+
+.sidebar a:hover{
+  color:#ff0066;
+}
+
+.content{
+  flex:1;
+  padding:40px;
+}
+
 input,textarea{
   width:100%;
   padding:12px;
@@ -28,6 +49,7 @@ input,textarea{
   border-radius:8px;
   border:none;
 }
+
 button{
   background:#ff0066;
   color:#fff;
@@ -38,33 +60,27 @@ button{
   cursor:pointer;
   font-weight:bold;
 }
-label{
-  font-size:14px;
-}
+
 .card{
-  background:#1a1a22;
+  background:#1f1f2b;
   padding:15px;
   border-radius:10px;
   margin-top:20px;
 }
-.lista-card{
-  background:#1f1f2b;
-  padding:15px;
-  border-radius:10px;
-  margin-top:15px;
-}
-.lista-card button{
-  margin-top:10px;
-}
 </style>
 </head>
+
 <body>
 
-<div class="container">
+<div class="sidebar">
+  <h2>Sexy Ladies</h2>
+  <a href="/">Cadastrar Modelo</a>
+  <a href="/modelos.html" target="_blank">Modelos Cadastradas</a>
+</div>
 
-<h1>Sexy Ladies</h1>
+<div class="content">
 
-<h2>Cadastrar Modelo</h2>
+<h1>Cadastrar Modelo</h1>
 
 <form id="form">
 <input name="nome" placeholder="Nome artístico" required>
@@ -73,7 +89,7 @@ label{
 <input name="estado" placeholder="Estado" required>
 <input name="cidade" placeholder="Cidade" required>
 <textarea name="descricao" placeholder="Descrição"></textarea>
-<input name="whatsapp" placeholder="WhatsApp (somente números)" required>
+<input name="whatsapp" placeholder="WhatsApp" required>
 
 <label>
 <input type="checkbox" name="maior18" required>
@@ -85,19 +101,14 @@ Declaro que sou maior de 18 anos
 
 <div id="mensagem"></div>
 
-<h2>Modelos Cadastradas</h2>
-<div id="lista"></div>
-
 </div>
 
 <script>
 const form = document.getElementById("form");
 const msg = document.getElementById("mensagem");
-const lista = document.getElementById("lista");
 
 form.onsubmit = async (e)=>{
   e.preventDefault();
-
   const data = Object.fromEntries(new FormData(form));
 
   const res = await fetch("/api/register",{
@@ -111,33 +122,10 @@ form.onsubmit = async (e)=>{
   if(result.ok){
     msg.innerHTML = "<div class='card'>Cadastro realizado com sucesso!</div>";
     form.reset();
-    carregarModelos();
   }else{
     msg.innerHTML = "<div class='card'>"+result.error+"</div>";
   }
 }
-
-async function carregarModelos(){
-  const res = await fetch("/api/models");
-  const modelos = await res.json();
-
-  lista.innerHTML = "";
-
-  modelos.forEach(m => {
-    lista.innerHTML += `
-      <div class="lista-card">
-        <h3>${m.nome}</h3>
-        <p>${m.cidade} - ${m.estado}</p>
-        <p>${m.descricao || ""}</p>
-        <a href="https://wa.me/${m.whatsapp}" target="_blank">
-          <button>Falar no WhatsApp</button>
-        </a>
-      </div>
-    `;
-  });
-}
-
-carregarModelos();
 </script>
 
 </body>
