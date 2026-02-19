@@ -65,6 +65,16 @@ app.get("/api/models", async (req, res) => {
   );
   res.json(result.rows);
 });
+app.get("/api/models", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, nome, cidade, estado, descricao, whatsapp FROM models ORDER BY id DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao buscar modelos" });
+  }
+});
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Servidor rodando...");
