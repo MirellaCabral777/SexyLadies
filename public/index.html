@@ -5,12 +5,71 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sexy Ladies</title>
 <style>
-body{margin:0;font-family:Arial;background:#111;color:#fff;text-align:center;padding:40px}
-h1{color:#ff0077}
+body{margin:0;font-family:Arial;background:#0f0f14;color:#fff}
+header{padding:20px;text-align:center;font-size:26px;font-weight:bold;background:#111}
+.container{max-width:1200px;margin:auto;padding:20px}
+form{background:#1b1b25;padding:20px;border-radius:16px;margin-bottom:30px}
+input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none}
+button{background:#ff0066;color:#fff;padding:10px;border:none;border-radius:8px;cursor:pointer;width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.card{background:#1b1b25;border-radius:16px;padding:15px}
+.card img{width:100%;border-radius:12px}
 </style>
 </head>
 <body>
-<h1>Sexy Ladies</h1>
-<p>Plataforma online em construção 🚀</p>
+
+<header>Sexy Ladies – Plataforma de Perfis</header>
+
+<div class="container">
+
+<h2>Criar Perfil</h2>
+<form id="form">
+<input name="nome" placeholder="Nome" required>
+<input name="estado" placeholder="Estado" required>
+<input name="cidade" placeholder="Cidade" required>
+<textarea name="descricao" placeholder="Descrição" required></textarea>
+<input name="whatsapp" placeholder="WhatsApp" required>
+<input type="file" name="imagem" required>
+<button type="submit">Publicar Perfil</button>
+</form>
+
+<h2>Perfis Publicados</h2>
+<div class="grid" id="lista"></div>
+
+</div>
+
+<script>
+const form=document.getElementById('form');
+
+form.onsubmit=async(e)=>{
+ e.preventDefault();
+ const data=new FormData(form);
+ await fetch('/api/perfis',{method:'POST',body:data});
+ alert('Perfil publicado!');
+ form.reset();
+ carregar();
+}
+
+async function carregar(){
+ const res=await fetch('/api/perfis');
+ const perfis=await res.json();
+ lista.innerHTML='';
+ perfis.forEach(p=>{
+  lista.innerHTML+=`
+   <div class="card">
+    <img src="${p.imagem}" />
+    <h3>${p.nome}</h3>
+    <p>${p.cidade} - ${p.estado}</p>
+    <p>${p.descricao}</p>
+    <a href="https://wa.me/${p.whatsapp}" target="_blank">
+      <button>WhatsApp</button>
+    </a>
+   </div>`;
+ });
+}
+
+carregar();
+</script>
+
 </body>
 </html>
