@@ -1,133 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sexy Ladies</title>
-
+<title>SexyLadies</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f0f14;
-  color:#fff;
-  display:flex;
-}
-
-.sidebar{
-  width:220px;
-  background:#16161f;
+body { font-family: Arial; margin:0; display:flex; }
+.menu {
+  width:200px;
+  background:#111;
+  color:white;
   height:100vh;
   padding:20px;
-  box-sizing:border-box;
 }
-
-.sidebar h2{
-  color:#ff0066;
-}
-
-.sidebar a{
+.menu a {
   display:block;
-  color:#fff;
+  color:white;
   text-decoration:none;
-  margin:15px 0;
+  margin-bottom:15px;
 }
-
-.sidebar a:hover{
-  color:#ff0066;
-}
-
-.content{
+.content {
   flex:1;
   padding:40px;
 }
-
-input,textarea{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:8px;
-  border:none;
-}
-
-button{
-  background:#ff0066;
-  color:#fff;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  width:100%;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.card{
-  background:#1f1f2b;
-  padding:15px;
-  border-radius:10px;
-  margin-top:20px;
-}
 </style>
 </head>
-
 <body>
 
-<div class="sidebar">
-  <h2>Sexy Ladies</h2>
-  <a href="/">Cadastrar Modelo</a>
-  <a href="/modelos.html">Modelos Cadastradas</a>
-
+<div class="menu">
+  <h2>SexyLadies</h2>
+  <a href="index.html">Início</a>
+  <a href="cadastro.html">Cadastro</a>
+  <a href="modelos.html">Modelos</a>
 </div>
 
 <div class="content">
-
-<h1>Cadastrar Modelo</h1>
-
-<form id="form">
-<input name="nome" placeholder="Nome artístico" required>
-<input name="email" placeholder="Email" required>
-<input type="password" name="senha" placeholder="Senha" required>
-<input name="estado" placeholder="Estado" required>
-<input name="cidade" placeholder="Cidade" required>
-<textarea name="descricao" placeholder="Descrição"></textarea>
-<input name="whatsapp" placeholder="WhatsApp" required>
-
-<label>
-<input type="checkbox" name="maior18" required>
-Declaro que sou maior de 18 anos
-</label>
-
-<button type="submit">Criar Perfil</button>
-</form>
-
-<div id="mensagem"></div>
-
+  <h1>Bem-vindo ao SexyLadies 🔥</h1>
+  <p>Plataforma de divulgação de modelos.</p>
 </div>
-
-<script>
-const form = document.getElementById("form");
-const msg = document.getElementById("mensagem");
-
-form.onsubmit = async (e)=>{
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(form));
-
-  const res = await fetch("/api/register",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(data)
-  });
-
-  const result = await res.json();
-
-  if(result.ok){
-    msg.innerHTML = "<div class='card'>Cadastro realizado com sucesso!</div>";
-    form.reset();
-  }else{
-    msg.innerHTML = "<div class='card'>"+result.error+"</div>";
-  }
-}
-</script>
 
 </body>
 </html>

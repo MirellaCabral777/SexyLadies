@@ -1,35 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Perfil</title>
+</head>
+<body>
+
+<div id="perfil"></div>
+
 <script>
-function getId(){
-  const params = new URLSearchParams(window.location.search);
-  return params.get("id");
-}
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
 
-async function carregarPerfil(){
-  const id = getId();
+fetch("/api/model/" + id)
+  .then(res => res.json())
+  .then(modelo => {
+    const div = document.getElementById("perfil");
 
-  const res = await fetch("/api/model/" + id);
-  const modelo = await res.json();
+    div.innerHTML = `
+      <div style="padding:20px; border:1px solid #ccc; border-radius:10px;">
 
-  const div = document.getElementById("perfil");
+        <img src="${modelo.foto || 'https://via.placeholder.com/400'}"
+             style="width:100%; border-radius:10px; margin-bottom:15px;">
 
-  if(!modelo){
-    div.innerHTML = "<h2>Modelo não encontrada</h2>";
-    return;
-  }
+        <h1>${modelo.nome}</h1>
+        <p><strong>${modelo.cidade} - ${modelo.estado}</strong></p>
+        <p>${modelo.descricao || ""}</p>
+        <p>👁 ${modelo.views} visualizações</p>
 
-  div.innerHTML = `
-    <div class="card">
-      <h1>${modelo.nome}</h1>
-      <p><strong>${modelo.cidade} - ${modelo.estado}</strong></p>
-      <p>${modelo.descricao || ""}</p>
-      <p>👁 ${modelo.views} visualizações</p>
+        <a href="https://wa.me/${modelo.whatsapp}" target="_blank">
+          <button>Chamar no WhatsApp</button>
+        </a>
 
-      <a href="https://wa.me/${modelo.whatsapp}" target="_blank">
-        <button>Chamar no WhatsApp</button>
-      </a>
-    </div>
-  `;
-}
-
-carregarPerfil();
+      </div>
+    `;
+  });
 </script>
+
+</body>
+</html>
