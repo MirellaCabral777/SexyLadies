@@ -36,6 +36,11 @@ const pool = new Pool({
       ALTER TABLE models
       ADD COLUMN IF NOT EXISTS views INTEGER DEFAULT 0;
     `);
+    await pool.query(`
+      ALTER TABLE models
+      ADD COLUMN IF NOT EXISTS foto TEXT;
+    `);
+
     console.log("Coluna views pronta");
   } catch (err) {
     console.error(err);
@@ -96,7 +101,8 @@ app.post("/api/register", upload.single("foto"), async (req, res) => {
 app.get("/api/models", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, nome, cidade, estado, descricao, whatsapp, views FROM models ORDER BY id DESC"
+      "SELECT id, nome, cidade, estado, descricao, whatsapp, views, foto FROM models WHERE id = $1"
+
     );
     res.json(result.rows);
   } catch (err) {
