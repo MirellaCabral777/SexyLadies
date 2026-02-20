@@ -1,0 +1,25 @@
+<form id="formCadastro" enctype="multipart/form-data">
+<input type="file" name="foto" accept="image/*" required>
+<script>
+const form = document.getElementById("formCadastro");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(form);
+
+  const res = await fetch("/api/register", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    alert("Cadastro realizado com sucesso!");
+    form.reset();
+  } else {
+    alert(data.error);
+  }
+});
+</script>
