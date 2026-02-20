@@ -54,3 +54,18 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta " + PORT);
 });
+app.get("/api/criar-tabela", async (req, res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS modelos (
+        id SERIAL PRIMARY KEY,
+        nome TEXT NOT NULL,
+        descricao TEXT
+      );
+    `);
+    res.send("Tabela criada com sucesso");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erro ao criar tabela");
+  }
+});
