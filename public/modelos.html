@@ -1,42 +1,22 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<title>Modelos</title>
-</head>
-<body>
-
-<h2>Modelos Cadastradas</h2>
-
+<h2>Modelos</h2>
 <div id="lista"></div>
 
 <script>
 fetch("/api/models")
-  .then(res => res.json())
-  .then(data => {
-    const div = document.getElementById("lista");
-    div.innerHTML = "";
-
-    data.forEach(m => {
-      div.innerHTML += `
-        <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:10px;">
-          
-          <img src="${m.foto || 'https://via.placeholder.com/300'}"
-               style="width:100%; border-radius:10px; margin-bottom:10px;">
-
-          <h3>${m.nome}</h3>
-          <p>${m.cidade} - ${m.estado}</p>
-          <p>👁 ${m.views} visualizações</p>
-
-          <a href="perfil.html?id=${m.id}">
-            <button>Ver Perfil</button>
-          </a>
-
-        </div>
-      `;
-    });
+.then(res=>res.json())
+.then(data=>{
+  const div=document.getElementById("lista");
+  div.innerHTML="";
+  data.forEach(m=>{
+    div.innerHTML+=`
+      <div style="border:1px solid #ccc;padding:15px;margin-bottom:20px;">
+        <img src="${m.foto}" width="200"><br>
+        <h3>${m.nome}</h3>
+        <p>${m.cidade} - ${m.estado}</p>
+        <p>👁 ${m.views}</p>
+        <a href="perfil.html?id=${m.id}">Ver Perfil</a>
+      </div>
+    `;
   });
+});
 </script>
-
-</body>
-</html>

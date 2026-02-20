@@ -1,41 +1,19 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<title>Perfil</title>
-</head>
-<body>
-
 <div id="perfil"></div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
+const params=new URLSearchParams(window.location.search);
+const id=params.get("id");
 
-fetch("/api/model/" + id)
-  .then(res => res.json())
-  .then(modelo => {
-    const div = document.getElementById("perfil");
-
-    div.innerHTML = `
-      <div style="padding:20px; border:1px solid #ccc; border-radius:10px;">
-
-        <img src="${modelo.foto || 'https://via.placeholder.com/400'}"
-             style="width:100%; border-radius:10px; margin-bottom:15px;">
-
-        <h1>${modelo.nome}</h1>
-        <p><strong>${modelo.cidade} - ${modelo.estado}</strong></p>
-        <p>${modelo.descricao || ""}</p>
-        <p>👁 ${modelo.views} visualizações</p>
-
-        <a href="https://wa.me/${modelo.whatsapp}" target="_blank">
-          <button>Chamar no WhatsApp</button>
-        </a>
-
-      </div>
-    `;
-  });
+fetch("/api/model/"+id)
+.then(res=>res.json())
+.then(m=>{
+  document.getElementById("perfil").innerHTML=`
+    <img src="${m.foto}" width="300"><br>
+    <h1>${m.nome}</h1>
+    <p>${m.cidade} - ${m.estado}</p>
+    <p>${m.descricao}</p>
+    <p>👁 ${m.views}</p>
+    <a href="https://wa.me/${m.whatsapp}" target="_blank">WhatsApp</a>
+  `;
+});
 </script>
-
-</body>
-</html>
