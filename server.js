@@ -1,3 +1,16 @@
+const multer = require("multer");
+const path = require("path");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
+
 require("dotenv").config();
 
 const express = require("express");
@@ -30,7 +43,32 @@ const pool = new Pool({
 })();
 
 /* CADASTRO */
-app.post("/api/register", async (req, res) => {
+app.post("/api/register", upload.single("foto"), async (req, res) => {
+  try {
+    const { nome, email, senha, cidade, estado, descricao, whatsapp, maior18 } = req.body;
+
+    if (!maior18) {
+      return res.status(400).json({ error: "Obrigatório ser maior de 18 anos" });
+    }
+
+    const hash = await bcrypt.hash(senha, 10);
+
+    const foto = req.file ? "/uploads/" + req.file.filename : null;
+
+    await pool.query(
+      `INSERT INTO models
+      (nome, email, senha, cidade, estado, descricao, whatsapp, maior18, foto)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [nome, email, hash, cidade, estado, descricao, whatsapp, maior18, foto]
+    );
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
   try {
     const { nome, email, senha, cidade, estado, descricao, whatsapp, maior18 } = req.body;
 
