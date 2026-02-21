@@ -1,63 +1,60 @@
 const express = require("express");
 const { Pool } = require("pg");
 const path = require("path");
+const multer = require("multer");
 
 const app = express();
 
-// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static("uploads"));
 
-// Conexão com banco
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
-// ==========================
-// ROTA TESTE
-// ==========================
-app.get("/api/teste", (req, res) => {
-  res.json({ ok: true });
-});
-
-// ==========================
-// CRIAR TABELA (usar 1 vez)
-// ==========================
-app.get("/api/setup", async (req, res) => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS modelos (
-        id SERIAL PRIMARY KEY,
-        nome TEXT NOT NULL,
-        descricao TEXT
-      );
-    `);
-
-    res.send("Tabela criada com sucesso ✅");
-  } catch (err) {
-    console.error("Erro ao criar tabela:", err);
-    res.status(500).send("Erro ao criar tabela");
+// CONFIG UPLOAD
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
   }
 });
 
+const upload = multer({ storage });
+
 // ==========================
-// INSERIR MODELO (TESTE)
+// CADASTRO COMPLETO
 // ==========================
-app.get("/api/teste-insert", async (req, res) => {
+app.post("/api/cadastro", upload.single("foto"), async (req, res) => {
+  const {
+    nome,
+    email,
+    senha,
+    cidade,
+    estado,
+    descricao,
+    whatsapp
+  } = req.body;
+
+  const foto = req.file ? "/uploads/" + req.file.filename : null;
+
   try {
     await pool.query(
-      "INSERT INTO modelos (nome, descricao) VALUES ($1, $2)",
-      ["Modelo Teste", "Descrição de teste"]
+      `INSERT INTO modelos 
+      (nome, email, senha, cidade, estado, descricao, whatsapp, foto) 
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [nome, email, senha, cidade, estado, descricao, whatsapp, foto]
     );
 
-    res.send("Inserido com sucesso ✅");
+    res.json({ sucesso: true });
   } catch (err) {
-    console.error("Erro ao inserir:", err);
-    res.status(500).send("Erro ao inserir");
+    console.error(err);
+    res.status(500).json({ error: "Erro ao cadastrar" });
   }
 });
 
@@ -67,66 +64,17 @@ app.get("/api/teste-insert", async (req, res) => {
 app.get("/api/models", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, nome, descricao FROM modelos ORDER BY id DESC"
+      `SELECT id, nome, cidade, estado, descricao, whatsapp, foto 
+       FROM modelos ORDER BY id DESC`
     );
 
     res.json(result.rows);
   } catch (err) {
-    console.error("Erro ao buscar modelos:", err);
+    console.error(err);
     res.status(500).json({ error: "Erro ao buscar modelos" });
   }
 });
 
-// ==========================
-// CADASTRAR MODELO (FORM)
-// ==========================
-app.post("/api/cadastro", async (req, res) => {
-  const { nome, descricao } = req.body;
-
-  if (!nome) {
-    return res.status(400).json({ error: "Nome é obrigatório" });
-  }
-
-  try {
-    await pool.query(
-      "INSERT INTO modelos (nome, descricao) VALUES ($1, $2)",
-      [nome, descricao]
-    );
-
-    res.json({ sucesso: true });
-  } catch (err) {
-    console.error("Erro ao cadastrar:", err);
-    res.status(500).json({ error: "Erro ao cadastrar" });
-  }
-});
-
-// ==========================
-// START SERVIDOR
-// ==========================
-app.get("/api/update-table", async (req, res) => {
-  try {
-    await pool.query(`
-      DROP TABLE IF EXISTS modelos;
-      CREATE TABLE modelos (
-        id SERIAL PRIMARY KEY,
-        nome TEXT NOT NULL,
-        email TEXT NOT NULL,
-        senha TEXT NOT NULL,
-        cidade TEXT,
-        estado TEXT,
-        descricao TEXT,
-        whatsapp TEXT,
-        foto TEXT,
-        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    res.send("Tabela atualizada com sucesso 🚀");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erro ao atualizar tabela");
-  }
-});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
