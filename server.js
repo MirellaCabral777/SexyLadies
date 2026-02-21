@@ -16,8 +16,17 @@ const pool = new Pool({
 });
 
 // Teste
-app.get("/api/teste", (req, res) => {
-  res.json({ ok: true });
+app.get("/api/teste-insert", async (req, res) => {
+  try {
+    await pool.query(
+      "INSERT INTO modelos (nome, descricao) VALUES ($1, $2)",
+      ["Teste Modelo", "Descrição teste"]
+    );
+    res.send("Inserido com sucesso");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erro ao inserir");
+  }
 });
 
 // Listar modelos
