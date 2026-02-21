@@ -103,6 +103,30 @@ app.post("/api/cadastro", async (req, res) => {
 // ==========================
 // START SERVIDOR
 // ==========================
+app.get("/api/update-table", async (req, res) => {
+  try {
+    await pool.query(`
+      DROP TABLE IF EXISTS modelos;
+      CREATE TABLE modelos (
+        id SERIAL PRIMARY KEY,
+        nome TEXT NOT NULL,
+        email TEXT NOT NULL,
+        senha TEXT NOT NULL,
+        cidade TEXT,
+        estado TEXT,
+        descricao TEXT,
+        whatsapp TEXT,
+        foto TEXT,
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    res.send("Tabela atualizada com sucesso 🚀");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erro ao atualizar tabela");
+  }
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
