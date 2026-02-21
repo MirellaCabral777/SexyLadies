@@ -1,25 +1,33 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-
-const SECRET = "segredo_super_forte_123";
 const express = require("express");
 const { Pool } = require("pg");
 const path = require("path");
 const multer = require("multer");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const app = express();
+
+// ==========================
+// CONFIGURAÇÕES
+// ==========================
+const SECRET = "segredo_super_forte_123";
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static("uploads"));
 
+// ==========================
+// BANCO DE DADOS
+// ==========================
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
-// CONFIG UPLOAD
+// ==========================
+// CONFIGURAÇÃO UPLOAD
+// ==========================
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -32,30 +40,63 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ==========================
+// CRIAR TABELA COMPLETA
+// (Use 1 vez se precisar)
+// ==========================
+app.get("/api/setup", async (req, res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS modelos (
+        id SERIAL PRIMARY KEY,
+        nome TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        senha TEXT NOT NULL,
+        cidade TEXT,
+        estado TEXT,
+        descricao TEXT,
+        whatsapp TEXT,
+        foto TEXT,
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    res.send("Tabela criada com sucesso ✅");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erro ao criar tabela");
+  }
+});
+
+// ==========================
 // CADASTRO COMPLETO
 // ==========================
 app.post("/api/cadastro", upload.single("foto"), async (req, res) => {
+
   const {
     nome,
     email,
-    const senhaCriptografada = await bcrypt.hash(senha, 10);
+    senha,
     cidade,
     estado,
     descricao,
     whatsapp
   } = req.body;
 
-  const foto = req.file ? "/uploads/" + req.file.filename : null;
-
   try {
+
+    const senhaCriptografada = await bcrypt.hash(senha, 10);
+
+    const foto = req.file ? "/uploads/" + req.file.filename : null;
+
     await pool.query(
       `INSERT INTO modelos 
       (nome, email, senha, cidade, estado, descricao, whatsapp, foto) 
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-     [ nome, email, senhaCriptografada, cidade, estado, descricao, whatsapp, foto ]
+      [nome, email, senhaCriptografada, cidade, estado, descricao, whatsapp, foto]
     );
 
     res.json({ sucesso: true });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao cadastrar" });
@@ -63,27 +104,14 @@ app.post("/api/cadastro", upload.single("foto"), async (req, res) => {
 });
 
 // ==========================
-// LISTAR MODELOS
+// LOGIN
 // ==========================
-app.get("/api/models", async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT id, nome, cidade, estado, descricao, whatsapp, foto 
-       FROM modelos ORDER BY id DESC`
-    );
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao buscar modelos" });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
 app.post("/api/login", async (req, res) => {
+
   const { email, senha } = req.body;
 
   try {
+
     const result = await pool.query(
       "SELECT * FROM modelos WHERE email = $1",
       [email]
@@ -114,8 +142,9 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "Erro no login" });
   }
 });
+
 // ==========================
-// MIDDLEWARE DE AUTENTICAÇÃO
+// MIDDLEWARE JWT
 // ==========================
 function autenticar(req, res, next) {
 
@@ -135,14 +164,16 @@ function autenticar(req, res, next) {
     return res.status(401).json({ error: "Token inválido" });
   }
 }
+
 // ==========================
-// ROTA PROTEGIDA (PERFIL)
+// ROTA PROTEGIDA
 // ==========================
 app.get("/api/perfil", autenticar, async (req, res) => {
 
   try {
+
     const result = await pool.query(
-      "SELECT id, nome, email FROM modelos WHERE id = $1",
+      "SELECT id, nome, email, cidade, estado FROM modelos WHERE id = $1",
       [req.usuario.id]
     );
 
@@ -154,6 +185,33 @@ app.get("/api/perfil", autenticar, async (req, res) => {
   }
 
 });
+
+// ==========================
+// LISTAR MODELOS
+// ==========================
+app.get("/api/models", async (req, res) => {
+
+  try {
+
+    const result = await pool.query(
+      `SELECT id, nome, cidade, estado, descricao, whatsapp, foto 
+       FROM modelos ORDER BY id DESC`
+    );
+
+    res.json(result.rows);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao buscar modelos" });
+  }
+
+});
+
+// ==========================
+// START
+// ==========================
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta " + PORT);
 });
